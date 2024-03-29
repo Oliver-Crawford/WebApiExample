@@ -16,7 +16,9 @@ namespace WebApi2.Controllers
     public class StudentsController : ApiController
     {
         string connectionString = @"Data Source = localhost\SQLEXPRESS; Initial Catalog = WebApi2; Integrated Security = true;";
-        // GET api/values
+        //this is mostly from the work we did in class on wednesday.
+        
+        //This is the Get method, it returns everything in the DB
         public IEnumerable<People> Get()
         {
             List<People> people = new List<People>();
@@ -48,6 +50,7 @@ namespace WebApi2.Controllers
 
             return people;
         }
+        //This is an overloaded Get method, it returns the person by ID
         public People Get(int id)
         {
             People people = new People();
@@ -73,6 +76,7 @@ namespace WebApi2.Controllers
 
             return people;
         }
+        //This is the Post method, it inserts a new person into the DB
         public IHttpActionResult Post([FromBody] People people)
         {
             string query = $"insert into People(FirstName, LastName, Email, Phone) VALUES(@FirstName, @LastName, @Email, @Phone);";
@@ -91,6 +95,7 @@ namespace WebApi2.Controllers
             }
             return Ok();
         }
+        //This is the Put method, it updates by the Id
         public IHttpActionResult Put([FromBody] People people)
         {
             string query = $"Update People set FirstName = @FirstName, LastName = @LastName, Email = @Email, Phone = @Phone where Id = @Id;";
@@ -110,6 +115,7 @@ namespace WebApi2.Controllers
             }
             return Ok();
         }
+        //This is the Delete method, it deletes by the Id
         public IHttpActionResult Delete(int id)
         {
             string query = $"Delete People where Id = @Id;";
