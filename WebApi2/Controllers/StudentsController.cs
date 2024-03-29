@@ -5,58 +5,53 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Policy;
+using System.Web.Helpers;
 using System.Web.Http;
 using WebApi2.Models;
+
 
 namespace WebApi2.Controllers
 {
     public class StudentsController : ApiController
     {
-
+        string connectionString = @"Data Source = localhost\SQLEXPRESS; Initial Catalog = WebApi2; Integrated Security = true;";
         // GET api/values
-        public IEnumerable<Student> Get()
+        public IEnumerable<People> Get()
         {
-            //in models
-            List<Student> students = new List<Student>();
-
-            //connect to DB
-            string connectionString = @"Data Source = localhost; Initial Catalog = WebApi2; Integrated Security = true;";
-            string query = "Select * from Students";
+            List<People> people = new List<People>();
+            string query = "Select * from People";
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                using(SqlDataAdapter ad = new SqlDataAdapter(query, con))
+                using (SqlDataAdapter ad = new SqlDataAdapter(query, con))
                 {
                     DataTable dt = new DataTable();
                     ad.Fill(dt);
-                    if(dt != null)
+                    if (dt != null)
                     {
-                        foreach(DataRow row in dt.Rows)
+                        foreach (DataRow row in dt.Rows)
                         {
-                            students.Add(new Student
+                            people.Add(new People
                             {
                                 Id = (int)row["Id"],
-                                Name = (string)row["Name"],
-                                Age = (int)row["Age"]
+                                FirstName = (string)row["FirstName"],
+                                LastName = (string)row["LastName"],
+                                Email = (string)row["Email"],
+                                Phone = (string)row["Phone"]
                             });
                         }
                     }
                     dt.Dispose();
-                    
+
                 }
             }
 
-            return students;
+            return people;
         }
-
-        // GET api/values/5
-        public Student Get(int id)
+        public People Get(int id)
         {
-            //in models
-            Student student = new Student();
-
-            //connect to DB
-            string connectionString = @"Data Source = localhost; Initial Catalog = WebApi2; Integrated Security = true;";
-            string query = $"Select * from Students where id = {id}";
+            People people = new People();
+            string query = $"Select * from People where Id = {id}";
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 using (SqlDataAdapter ad = new SqlDataAdapter(query, con))
@@ -65,31 +60,30 @@ namespace WebApi2.Controllers
                     ad.Fill(dt);
                     if (dt.Rows.Count > 0)
                     {
-                        student.Id = (int)dt.Rows[0]["Id"];
-                        student.Name = (string)dt.Rows[0]["Name"];
-                        student.Age = (int)dt.Rows[0]["Age"];
+                        people.Id = (int)dt.Rows[0]["Id"];
+                        people.FirstName = (string)dt.Rows[0]["FirstName"];
+                        people.LastName = (string)dt.Rows[0]["LastName"];
+                        people.Email = (string)dt.Rows[0]["Email"];
+                        people.Phone = (string)dt.Rows[0]["Phone"];
                     }
                     dt.Dispose();
 
                 }
             }
 
-            return student;
+            return people;
         }
-
-        // POST api/values
-        public IHttpActionResult Post([FromBody] Student student)
+        public IHttpActionResult Post([FromBody] People people)
         {
-
-            //connect to DB
-            string connectionString = @"Data Source = localhost; Initial Catalog = WebApi2; Integrated Security = true;";
-            string query = $"insert into Students(Name, Age) VALUES(@Name, @Age);";
+            string query = $"insert into People(FirstName, LastName, Email, Phone) VALUES(@FirstName, @LastName, @Email, @Phone);";
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@Name", student.Name);
-                    cmd.Parameters.AddWithValue("@Age", student.Age);
+                    cmd.Parameters.AddWithValue("@FirstName", people.FirstName);
+                    cmd.Parameters.AddWithValue("@LastName", people.LastName);
+                    cmd.Parameters.AddWithValue("@Email", people.Email);
+                    cmd.Parameters.AddWithValue("@Phone", people.Phone);
                     con.Open();
                     cmd.ExecuteNonQuery();
                     con.Close();
@@ -97,20 +91,18 @@ namespace WebApi2.Controllers
             }
             return Ok();
         }
-
-        // PUT api/values/5
-        public IHttpActionResult Put([FromBody] Student student)
+        public IHttpActionResult Put([FromBody] People people)
         {
-            //connect to DB
-            string connectionString = @"Data Source = localhost; Initial Catalog = WebApi2; Integrated Security = true;";
-            string query = $"Update Students set Name = @Name, Age = @Age where Id = @Id;";
+            string query = $"Update People set FirstName = @FirstName, LastName = @LastName, Email = @Email, Phone = @Phone where Id = @Id;";
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@Id", student.Id);
-                    cmd.Parameters.AddWithValue("@Name", student.Name);
-                    cmd.Parameters.AddWithValue("@Age", student.Age);
+                    cmd.Parameters.AddWithValue("@Id", people.Id);
+                    cmd.Parameters.AddWithValue("@FirstName", people.FirstName);
+                    cmd.Parameters.AddWithValue("@LastName", people.LastName);
+                    cmd.Parameters.AddWithValue("@Email", people.Email);
+                    cmd.Parameters.AddWithValue("@Phone", people.Phone);
                     con.Open();
                     cmd.ExecuteNonQuery();
                     con.Close();
@@ -118,13 +110,9 @@ namespace WebApi2.Controllers
             }
             return Ok();
         }
-
-        // DELETE api/values/5
         public IHttpActionResult Delete(int id)
         {
-            //connect to DB
-            string connectionString = @"Data Source = localhost; Initial Catalog = WebApi2; Integrated Security = true;";
-            string query = $"Delete Students where Id = @Id;";
+            string query = $"Delete People where Id = @Id;";
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 using (SqlCommand cmd = new SqlCommand(query, con))
